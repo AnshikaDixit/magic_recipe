@@ -18,7 +18,8 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i4;
 import 'package:magic_recipe_client/src/protocol/greetings/greeting.dart'
     as _i5;
-import 'protocol.dart' as _i6;
+import 'package:magic_recipe_client/src/protocol/recipe.dart' as _i6;
+import 'protocol.dart' as _i7;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -270,8 +271,8 @@ class EndpointRecipe extends _i2.EndpointRef {
   String get name => 'recipe';
 
   /// Pass in a string containing the ingredients and get a recipe back.
-  _i3.Future<String> generateRecipe(String ingredients) =>
-      caller.callServerEndpoint<String>(
+  _i3.Future<_i6.Recipe> generateRecipe(String ingredients) =>
+      caller.callServerEndpoint<_i6.Recipe>(
         'recipe',
         'generateRecipe',
         {'ingredients': ingredients},
@@ -309,7 +310,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i6.Protocol(),
+         _i7.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,

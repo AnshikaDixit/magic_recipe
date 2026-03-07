@@ -18,6 +18,7 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i4;
 import 'package:magic_recipe_server/src/generated/greetings/greeting.dart'
     as _i5;
+import 'package:magic_recipe_server/src/generated/recipe.dart' as _i6;
 import 'package:magic_recipe_server/src/generated/protocol.dart';
 import 'package:magic_recipe_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -530,7 +531,7 @@ class _RecipeEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<String> generateRecipe(
+  _i3.Future<_i6.Recipe> generateRecipe(
     _i1.TestSessionBuilder sessionBuilder,
     String ingredients,
   ) async {
@@ -553,7 +554,7 @@ class _RecipeEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<String>);
+                as _i3.Future<_i6.Recipe>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
