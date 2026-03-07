@@ -2,6 +2,8 @@
 .dart_tool/
 .packages
 build/
+*.lock
+
 
 # Flutter generated
 .flutter-plugins
