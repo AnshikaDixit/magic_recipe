@@ -122,64 +122,77 @@ class MyHomePageState extends State<MyHomePage> {
       ),
       body: Row(
         children: [
-        // Left panel: Recipe history
-         Expanded(
-           child: DecoratedBox(
-             decoration: BoxDecoration(color: Colors.grey[300]),
-             child: ListView.builder(
-               itemCount: _recipeHistory.length,
-               itemBuilder: (context, index) {
-                 final recipe = _recipeHistory[index];
-                 final firstLineEnd = recipe.text.indexOf('\n');
-                 final title = firstLineEnd != -1
-                     ? recipe.text.substring(0, firstLineEnd)
-                     : recipe.text;
-                 return ListTile(
-                   title: Text(title),
-                   subtitle: Text('${recipe.author} - ${recipe.date}'),
-                   onTap: () {
-                     setState(() {
-                       _recipe = recipe;
-                       _textEditingController.text = recipe.ingredients;
-                     });
-                   },
-                 );
-               },
-             ),
-           ),
-         ),
-         // Right panel: Recipe generator (3x wider)
-         Expanded(
-           flex: 3,
-           child: Padding(
-             padding: const EdgeInsets.all(16),
-             child: Column(
-               children: [
-                 TextField(
-                controller: _textEditingController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter your ingredients for the recipe',
-                ),),
-                  ElevatedButton(
-                onPressed: _loading ? null : _callGenerateRecipe,
-                child: _loading
-                    ? const Text('Loading...')
-                    : const Text('Generate Recipe'),
+          // Left panel: Recipe history
+          Expanded(
+            child: DecoratedBox(
+              decoration: BoxDecoration(color: Colors.grey[300]),
+              child: ListView.builder(
+                itemCount: _recipeHistory.length,
+                itemBuilder: (context, index) {
+                  final recipe = _recipeHistory[index];
+                  final firstLineEnd = recipe.text.indexOf('\n');
+                  final title = firstLineEnd != -1
+                      ? recipe.text.substring(0, firstLineEnd)
+                      : recipe.text;
+                  return ListTile(
+                    title: Text(title),
+                    subtitle: Text('${recipe.author} - ${recipe.date}'),
+                    onTap: () {
+                      setState(() {
+                        _recipe = recipe;
+                        _textEditingController.text = recipe.ingredients;
+                      });
+                    },
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () async {
+                        // Delete the recipe from the database
+                        await client.recipes.deleteRecipe(recipe.id!);
+                        setState(
+                          () {
+                            _recipeHistory.removeAt(index);
+                          },
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
-                Expanded(
-                   child: SingleChildScrollView(
-                     child: ResultDisplay(
-                  resultMessage: _recipe != null
-                      ? '${_recipe?.author} on ${_recipe?.date}:\n${_recipe?.text}'
-                    : null,
-                  errorMessage: _errorMessage,
-                ),
-                   ),
-                 ),
-               ],
-             ),
-           ),
-         ),
+            ),
+          ),
+          // Right panel: Recipe generator (3x wider)
+          Expanded(
+            flex: 3,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _textEditingController,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter your ingredients for the recipe',
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: _loading ? null : _callGenerateRecipe,
+                    child: _loading
+                        ? const Text('Loading...')
+                        : const Text('Generate Recipe'),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: ResultDisplay(
+                        resultMessage: _recipe != null
+                            ? '${_recipe?.author} on ${_recipe?.date}:\n${_recipe?.text}'
+                            : null,
+                        errorMessage: _errorMessage,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
