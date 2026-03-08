@@ -3,6 +3,7 @@
 #
 ### Our AI generated Recipe
 class: Recipe
+table: recipe
 fields:
   ### The author of the recipe
   author: String

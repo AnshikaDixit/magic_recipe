@@ -132,7 +132,7 @@ class TestEndpoints {
 
   late final _GreetingEndpoint greeting;
 
-  late final _RecipeEndpoint recipe;
+  late final _RecipesEndpoint recipes;
 }
 
 class _InternalTestEndpoints extends TestEndpoints
@@ -154,7 +154,7 @@ class _InternalTestEndpoints extends TestEndpoints
       endpoints,
       serializationManager,
     );
-    recipe = _RecipeEndpoint(
+    recipes = _RecipesEndpoint(
       endpoints,
       serializationManager,
     );
@@ -521,8 +521,8 @@ class _GreetingEndpoint {
   }
 }
 
-class _RecipeEndpoint {
-  _RecipeEndpoint(
+class _RecipesEndpoint {
+  _RecipesEndpoint(
     this._endpointDispatch,
     this._serializationManager,
   );
@@ -538,13 +538,13 @@ class _RecipeEndpoint {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'recipe',
+            endpoint: 'recipes',
             method: 'generateRecipe',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'recipe',
+          endpointPath: 'recipes',
           methodName: 'generateRecipe',
           parameters: _i1.testObjectToJson({'ingredients': ingredients}),
           serializationManager: _serializationManager,
