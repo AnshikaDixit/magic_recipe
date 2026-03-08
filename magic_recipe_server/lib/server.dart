@@ -1,9 +1,8 @@
 import 'dart:io';
-
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/email.dart';
-
+import 'package:serverpod_auth_server/serverpod_auth_server.dart' as auth;
 import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
 import 'src/web/routes/app_config_route.dart';
@@ -12,7 +11,22 @@ import 'src/web/routes/root.dart';
 /// The starting point of the Serverpod server.
 void run(List<String> args) async {
   // Initialize Serverpod and connect it with your generated code.
-  final pod = Serverpod(args, Protocol(), Endpoints());
+  final pod = Serverpod(args, Protocol(), Endpoints(), authenticationHandler: auth.authenticationHandler);
+
+   auth.AuthConfig.set(auth.AuthConfig(
+     sendValidationEmail: (session, email, validationCode) async {
+       // TODO: Send validation email to user
+       // For development, we print the code to the terminal
+       print('Validation code: $validationCode');
+       return true;
+     },
+     sendPasswordResetEmail: (session, userInfo, validationCode) async {
+       // TODO: Send password reset email to user
+       // For development, we print the code to the terminal
+       print('Password reset code: $validationCode');
+       return true;
+     },
+   ));
 
   // Initialize authentication services for the server.
   // Token managers will be used to validate and issue authentication keys,

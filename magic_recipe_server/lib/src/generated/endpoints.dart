@@ -17,8 +17,9 @@ import '../greetings/greeting_endpoint.dart' as _i4;
 import '../recipes/endpoints/recipe_endpoint.dart' as _i5;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _i6;
+import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i7;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
-    as _i7;
+    as _i8;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -333,7 +334,8 @@ class Endpoints extends _i1.EndpointDispatch {
     );
     modules['serverpod_auth_idp'] = _i6.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i7.Endpoints()
+    modules['serverpod_auth'] = _i7.Endpoints()..initializeEndpoints(server);
+    modules['serverpod_auth_core'] = _i8.Endpoints()
       ..initializeEndpoints(server);
   }
 }

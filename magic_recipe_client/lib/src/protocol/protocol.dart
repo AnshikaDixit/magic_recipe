@@ -16,8 +16,9 @@ import 'recipe.dart' as _i3;
 import 'package:magic_recipe_client/src/protocol/recipe.dart' as _i4;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _i5;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i6;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
-    as _i6;
+    as _i7;
 export 'greetings/greeting.dart';
 export 'recipe.dart';
 export 'client.dart';
@@ -78,6 +79,9 @@ class Protocol extends _i1.SerializationManager {
     try {
       return _i6.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
+    try {
+      return _i7.Protocol().deserialize<T>(data, t);
+    } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
 
@@ -113,6 +117,10 @@ class Protocol extends _i1.SerializationManager {
     }
     className = _i6.Protocol().getClassNameForObject(data);
     if (className != null) {
+      return 'serverpod_auth.$className';
+    }
+    className = _i7.Protocol().getClassNameForObject(data);
+    if (className != null) {
       return 'serverpod_auth_core.$className';
     }
     return null;
@@ -134,9 +142,13 @@ class Protocol extends _i1.SerializationManager {
       data['className'] = dataClassName.substring(19);
       return _i5.Protocol().deserializeByClassName(data);
     }
+    if (dataClassName.startsWith('serverpod_auth.')) {
+      data['className'] = dataClassName.substring(15);
+      return _i6.Protocol().deserializeByClassName(data);
+    }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i6.Protocol().deserializeByClassName(data);
+      return _i7.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }
@@ -155,6 +167,9 @@ class Protocol extends _i1.SerializationManager {
     } catch (_) {}
     try {
       return _i6.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    try {
+      return _i7.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
   }

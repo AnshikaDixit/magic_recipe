@@ -19,7 +19,8 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
 import 'package:magic_recipe_client/src/protocol/greetings/greeting.dart'
     as _i5;
 import 'package:magic_recipe_client/src/protocol/recipe.dart' as _i6;
-import 'protocol.dart' as _i7;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i7;
+import 'protocol.dart' as _i8;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -293,10 +294,13 @@ class EndpointRecipes extends _i2.EndpointRef {
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
+    auth = _i7.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
+
+  late final _i7.Caller auth;
 
   late final _i4.Caller serverpod_auth_core;
 }
@@ -321,7 +325,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i7.Protocol(),
+         _i8.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -358,6 +362,7 @@ class Client extends _i2.ServerpodClientShared {
   @override
   Map<String, _i2.ModuleEndpointCaller> get moduleLookup => {
     'serverpod_auth_idp': modules.serverpod_auth_idp,
+    'auth': mzodules.auth,
     'serverpod_auth_core': modules.serverpod_auth_core,
   };
 }
