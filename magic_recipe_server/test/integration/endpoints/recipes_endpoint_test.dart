@@ -60,4 +60,45 @@ void main() {
       expect(recipes[1].text, 'Recipe 1');
     });
   });
+
+
+  withServerpod('Given Recipe endpoint', (sessionBuilder, endpoints) {
+  test('when calling getRecipes, only non-deleted recipes are returned',
+      () async {
+    final session = sessionBuilder.build();
+
+    await Recipe.db.deleteWhere(session, where: (t) => t.id.notEquals(null));
+
+    final firstRecipe = Recipe(
+      author: 'Gemini',
+      text: 'Mock Recipe 1',
+      date: DateTime.now(),
+      ingredients: 'chicken, rice, broccoli'
+    );
+    await Recipe.db.insertRow(session, firstRecipe);
+
+    final secondRecipe = Recipe(
+      author: 'Gemini',
+      text: 'Mock Recipe 2',
+      date: DateTime.now(),
+      ingredients: 'chicken, rice, broccoli'
+    );
+    await Recipe.db.insertRow(session, secondRecipe);
+
+    final recipes = await endpoints.recipes.getRecipes(sessionBuilder);
+    expect(recipes.length, 2);
+
+    final recipeToDelete = await Recipe.db.findFirstRow(
+      session,
+      where: (t) => t.text.equals('Mock Recipe 1'),
+    );
+
+    await endpoints.recipes.deleteRecipe(sessionBuilder, recipeToDelete!.id!);
+
+    final recipes2 = await endpoints.recipes.getRecipes(sessionBuilder);
+    expect(recipes2.length, 1);
+    expect(recipes2[0].text, 'Mock Recipe 2');
+  });
+});
+
 }
