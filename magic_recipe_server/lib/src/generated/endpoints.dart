@@ -300,6 +300,16 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['ingredients'],
                   ),
         ),
+        'getRecipes': _i1.MethodConnector(
+          name: 'getRecipes',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['recipes'] as _i5.RecipesEndpoint)
+                  .getRecipes(session),
+        ),
       },
     );
     modules['serverpod_auth_idp'] = _i6.Endpoints()
