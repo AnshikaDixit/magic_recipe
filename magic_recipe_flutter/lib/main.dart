@@ -78,7 +78,7 @@ class MyHomePageState extends State<MyHomePage> {
         _loading = true;
       });
       final result =
-          await client.recipe.generateRecipe(_textEditingController.text);
+          await client.recipes.generateRecipe(_textEditingController.text);
       setState(() {
         _errorMessage = null;
         _recipe = result;
