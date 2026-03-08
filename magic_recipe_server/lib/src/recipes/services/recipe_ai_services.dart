@@ -10,7 +10,12 @@ import 'package:magic_recipe_server/src/recipes/exceptions/recipe_exception.dart
 abstract class RecipeAIService {
   const RecipeAIService();
 
+  static RecipeAIService Function(String apiKey)? factoryOverride;
+
   factory RecipeAIService.fromApiKey(String apiKey) {
+    if (factoryOverride != null) {
+      return factoryOverride!(apiKey);
+    }
     return ProductionRecipeAIService(apiKey: apiKey);
   }
 

@@ -4,7 +4,7 @@ import 'package:serverpod/serverpod.dart';
 
 class RecipesEndpoint extends Endpoint {
   Future<Recipe> generateRecipe(Session session, String ingredients) async {
-    final geminiApiKey = session.serverpod.getPassword('geminiApiKey')!;
+    final geminiApiKey = session.serverpod.getPassword('geminiApiKey') ?? 'mock_api_key';
     final service = RecipeAIService.fromApiKey(geminiApiKey);
     return service.generateRecipe(session, ingredients);
   }
@@ -18,4 +18,3 @@ class RecipesEndpoint extends Endpoint {
     );
   }
 }
-    
