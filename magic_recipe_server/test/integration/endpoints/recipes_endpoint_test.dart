@@ -5,8 +5,11 @@ import 'package:test/test.dart';
 import '../integration.dart';
 
 void main() {
-  withServerpod('Given Recipes endpoint', (sessionBuilder, endpoints) {
+  withServerpod('Given Recipes endpoint', (unAuthSessionBuilder, endpoints) {
     test('generates recipe with ingredients in prompt', () async {
+      final sessionBuilder = unAuthSessionBuilder.copyWith(
+        authentication: AuthenticationOverride.authenticationInfo('1', {}),
+      );
       final ai = MockRecipeAIService();
       RecipeAIService.factoryOverride = (_) => ai;
 
@@ -26,6 +29,9 @@ void main() {
     });
 
     test('returns all recipes', () async {
+      final sessionBuilder = unAuthSessionBuilder.copyWith(
+        authentication: AuthenticationOverride.authenticationInfo('1', {}),
+      );
       final db = sessionBuilder.build();
 
       // Clear existing recipes
@@ -41,12 +47,14 @@ void main() {
           text: 'Recipe 1',
           date: DateTime.now(),
           ingredients: 'ingredient1',
+          userId: '1',
         ),
         Recipe(
           author: 'Gemini',
           text: 'Recipe 2',
           date: DateTime.now(),
           ingredients: 'ingredient2',
+          userId: '1',
         ),
       ]);
 
@@ -61,44 +69,135 @@ void main() {
     });
   });
 
-
-  withServerpod('Given Recipe endpoint', (sessionBuilder, endpoints) {
-  test('when calling getRecipes, only non-deleted recipes are returned',
+  withServerpod('Given Recipe endpoint', (unAuthSessionBuilder, endpoints) {
+    test(
+      'when calling getRecipes, only non-deleted recipes are returned',
       () async {
-    final session = sessionBuilder.build();
+        final sessionBuilder = unAuthSessionBuilder.copyWith(
+          authentication: AuthenticationOverride.authenticationInfo('1', {}),
+        );
+        final session = sessionBuilder.build();
 
-    await Recipe.db.deleteWhere(session, where: (t) => t.id.notEquals(null));
+        await Recipe.db.deleteWhere(
+          session,
+          where: (t) => t.id.notEquals(null),
+        );
 
-    final firstRecipe = Recipe(
-      author: 'Gemini',
-      text: 'Mock Recipe 1',
-      date: DateTime.now(),
-      ingredients: 'chicken, rice, broccoli'
+        final firstRecipe = Recipe(
+          author: 'Gemini',
+          text: 'Mock Recipe 1',
+          date: DateTime.now(),
+          ingredients: 'chicken, rice, broccoli',
+          userId: '1',
+        );
+        await Recipe.db.insertRow(session, firstRecipe);
+
+        final secondRecipe = Recipe(
+          author: 'Gemini',
+          text: 'Mock Recipe 2',
+          date: DateTime.now(),
+          ingredients: 'chicken, rice, broccoli',
+          userId: '1',
+        );
+        await Recipe.db.insertRow(session, secondRecipe);
+
+        final recipes = await endpoints.recipes.getRecipes(sessionBuilder);
+        expect(recipes.length, 2);
+
+        final recipeToDelete = await Recipe.db.findFirstRow(
+          session,
+          where: (t) => t.text.equals('Mock Recipe 1'),
+        );
+
+        await endpoints.recipes.deleteRecipe(
+          sessionBuilder,
+          recipeToDelete!.id!,
+        );
+
+        final recipes2 = await endpoints.recipes.getRecipes(sessionBuilder);
+        expect(recipes2.length, 1);
+        expect(recipes2[0].text, 'Mock Recipe 2');
+      },
     );
-    await Recipe.db.insertRow(session, firstRecipe);
-
-    final secondRecipe = Recipe(
-      author: 'Gemini',
-      text: 'Mock Recipe 2',
-      date: DateTime.now(),
-      ingredients: 'chicken, rice, broccoli'
-    );
-    await Recipe.db.insertRow(session, secondRecipe);
-
-    final recipes = await endpoints.recipes.getRecipes(sessionBuilder);
-    expect(recipes.length, 2);
-
-    final recipeToDelete = await Recipe.db.findFirstRow(
-      session,
-      where: (t) => t.text.equals('Mock Recipe 1'),
-    );
-
-    await endpoints.recipes.deleteRecipe(sessionBuilder, recipeToDelete!.id!);
-
-    final recipes2 = await endpoints.recipes.getRecipes(sessionBuilder);
-    expect(recipes2.length, 1);
-    expect(recipes2[0].text, 'Mock Recipe 2');
   });
-});
 
+  withServerpod('Given Recipe endpoint', (unAuthSessionBuilder, endpoints) {
+    test('your test description', () async {
+      final sessionBuilder = unAuthSessionBuilder.copyWith(
+        authentication: AuthenticationOverride.authenticationInfo('1', {}),
+      );
+
+      final session = sessionBuilder.build();
+
+      await Recipe.db.insert(session, [
+        Recipe(
+          author: 'Gemini',
+          text: 'Mock Recipe 1',
+          date: DateTime.now(),
+          ingredients: 'chicken, rice, broccoli',
+          userId: '1',
+        ),
+        Recipe(
+          author: 'Gemini',
+          text: 'Mock Recipe 2',
+          date: DateTime.now(),
+          userId: '2',
+          ingredients: 'chicken, rice, broccoli',
+        ),
+      ]);
+
+      final recipeToDelete = await Recipe.db.findFirstRow(
+        session,
+        where: (t) => t.text.equals('Mock Recipe 1'),
+      );
+
+      await endpoints.recipes.deleteRecipe(sessionBuilder, recipeToDelete!.id!);
+
+      final recipeYouShouldntDelete = await Recipe.db.findFirstRow(
+        session,
+        where: (t) => t.text.equals('Mock Recipe 2'),
+      );
+
+      expect(
+        () => endpoints.recipes.deleteRecipe(
+          sessionBuilder,
+          recipeYouShouldntDelete!.id!,
+        ),
+        throwsA(isA<Exception>()),
+      );
+    });
+
+    test(
+      'when delete recipe with unauthenticated user, an exception is thrown',
+      () async {
+        expect(
+          () => endpoints.recipes.deleteRecipe(unAuthSessionBuilder, 1),
+          throwsA(isA<ServerpodUnauthenticatedException>()),
+        );
+      },
+    );
+
+    test(
+      'when trying to generate a recipe as an unauthenticated user an exception is thrown',
+      () async {
+        expect(
+          () => endpoints.recipes.generateRecipe(
+            unAuthSessionBuilder,
+            'chicken, rice, broccoli',
+          ),
+          throwsA(isA<ServerpodUnauthenticatedException>()),
+        );
+      },
+    );
+
+    test(
+      'when trying to get recipes as an unauthenticated user an exception is thrown',
+      () async {
+        expect(
+          () => endpoints.recipes.getRecipes(unAuthSessionBuilder),
+          throwsA(isA<ServerpodUnauthenticatedException>()),
+        );
+      },
+    );
+  });
 }
