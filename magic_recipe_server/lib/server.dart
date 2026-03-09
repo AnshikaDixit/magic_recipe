@@ -13,20 +13,40 @@ void run(List<String> args) async {
   // Initialize Serverpod and connect it with your generated code.
   final pod = Serverpod(args, Protocol(), Endpoints(), authenticationHandler: auth.authenticationHandler);
 
-   auth.AuthConfig.set(auth.AuthConfig(
-     sendValidationEmail: (session, email, validationCode) async {
-       // TODO: Send validation email to user
-       // For development, we print the code to the terminal
-       print('Validation code: $validationCode');
-       return true;
-     },
-     sendPasswordResetEmail: (session, userInfo, validationCode) async {
-       // TODO: Send password reset email to user
-       // For development, we print the code to the terminal
-       print('Password reset code: $validationCode');
-       return true;
-     },
-   ));
+  auth.AuthConfig.set(auth.AuthConfig(
+      sendValidationEmail: (session, email, validationCode) async {
+        // TODO: Send validation email to user
+        // For development, we print the code to the terminal
+        print('Validation code: $validationCode');
+        return true;
+      },
+      sendPasswordResetEmail: (session, userInfo, validationCode) async {
+        // TODO: Send password reset email to user
+        // For development, we print the code to the terminal
+        print('Password reset code: $validationCode');
+        return true;
+      },
+      onUserCreated: (session, userInfo) async {
+        // Extract the email from the user profile
+        final email = userInfo.email;
+
+        // If email is null, return early
+        if (email == null) return;
+
+        // Check if the email ends with serverpod.dev
+        if (!email.endsWith('serverpod.dev')) return;
+
+        // Assign admin scope to serverpod.dev users
+        await auth.Users.updateUserScopes(
+          session,
+          userInfo.id!,
+          {Scope.admin},
+        );
+
+        session.log('User ${userInfo.email} created with admin scope');
+      },
+    ),
+  );
 
   // Initialize authentication services for the server.
   // Token managers will be used to validate and issue authentication keys,
