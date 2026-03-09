@@ -362,7 +362,7 @@ class Client extends _i2.ServerpodClientShared {
   @override
   Map<String, _i2.ModuleEndpointCaller> get moduleLookup => {
     'serverpod_auth_idp': modules.serverpod_auth_idp,
-    'auth': mzodules.auth,
+    'auth': modules.auth,
     'serverpod_auth_core': modules.serverpod_auth_core,
   };
 }

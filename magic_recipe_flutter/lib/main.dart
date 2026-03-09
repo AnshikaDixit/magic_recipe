@@ -1,9 +1,9 @@
 import 'package:magic_recipe_client/magic_recipe_client.dart';
 import 'package:flutter/material.dart';
+import 'package:magic_recipe_flutter/screens/greetings_screen.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
-import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
-
-import 'screens/greetings_screen.dart';
+import 'package:serverpod_auth_email_flutter/serverpod_auth_email_flutter.dart';
+import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
 
 /// Sets up a global client object that can be used to talk to the server from
 /// anywhere in our app. The client is generated from your server code
@@ -12,6 +12,8 @@ import 'screens/greetings_screen.dart';
 /// production servers.
 /// In a larger app, you may want to use the dependency injection of your choice
 /// instead of using a global client object. This is just a simple example.
+late SessionManager sessionManager;
+
 late final Client client;
 
 late String serverUrl;
@@ -32,9 +34,12 @@ void main() async {
 
   client = Client(serverUrl)
     ..connectivityMonitor = FlutterConnectivityMonitor()
-    ..authSessionManager = FlutterAuthSessionManager();
+    ..authKeyProvider = FlutterAuthenticationKeyManager();
 
-  client.auth.initialize();
+  sessionManager = SessionManager(
+    caller: client.modules.auth,
+  );
+  await sessionManager.initialize();
 
   runApp(const MyApp());
 }
@@ -45,9 +50,41 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Serverpod Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const MyHomePage(title: 'Serverpod Example'),
+      title: 'Magic Recipe',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: sessionManager.isSignedIn
+          ? const MyHomePage(title: 'Magic Recipe Generator')
+          : const LoginPage(),
+    );
+  }
+}
+
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Login'),
+      ),
+      body: Center(
+        child: SignInWithEmailButton(
+          caller: client.modules.auth,
+          onSignedIn: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    const MyHomePage(title: 'Magic Recipe Generator'),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
@@ -119,6 +156,22 @@ class MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await sessionManager.signOutDevice();
+              if (context.mounted) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginPage(),
+                  ),
+                );
+              }
+            },
+          ),
+        ],
       ),
       body: Row(
         children: [

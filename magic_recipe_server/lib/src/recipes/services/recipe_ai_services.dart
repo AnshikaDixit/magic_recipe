@@ -29,6 +29,7 @@ abstract class RecipeAIService {
   /// [ingredients] must not be empty.
   Future<Recipe> generateRecipe(
     Session session,
+    String userId,
     String ingredients,
   ) async {
     _validateIngredients(ingredients);

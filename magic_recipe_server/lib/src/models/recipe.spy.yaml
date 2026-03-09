@@ -14,3 +14,4 @@ fields:
   ### The ingredients the user has passed in
   ingredients: String
   deletedAt: DateTime?, scope=serverOnly
+  userId: String?, scope=serverOnly
