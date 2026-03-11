@@ -27,23 +27,10 @@ void run(List<String> args) async {
         return true;
       },
       onUserCreated: (session, userInfo) async {
-        // Extract the email from the user profile
-        final email = userInfo.email;
-
-        // If email is null, return early
-        if (email == null) return;
-
-        // Check if the email ends with serverpod.dev
-        if (!email.endsWith('serverpod.dev')) return;
-
-        // Assign admin scope to serverpod.dev users
-        await auth.Users.updateUserScopes(
-          session,
-          userInfo.id!,
-          {Scope.admin},
-        );
-
-        session.log('User ${userInfo.email} created with admin scope');
+        if(userInfo.email!.endsWith("serverpod.dev")){
+          await auth.Users.updateUserScopes(session, userInfo.id!, {Scope.admin});
+          session.log('User ${userInfo.email} created with admin scope', level: LogLevel.info);
+        }
       },
     ),
   );

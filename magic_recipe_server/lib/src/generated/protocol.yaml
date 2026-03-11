@@ -7,6 +7,10 @@ emailIdp:
   - verifyPasswordResetCode:
   - finishPasswordReset:
   - hasAccount:
+admin:
+  - listUsers:
+  - blockUser:
+  - unblockUser:
 jwtRefresh:
   - refreshAccessToken:
 greeting:

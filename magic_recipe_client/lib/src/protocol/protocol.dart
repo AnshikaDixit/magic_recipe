@@ -13,10 +13,10 @@
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'greetings/greeting.dart' as _i2;
 import 'recipe.dart' as _i3;
-import 'package:magic_recipe_client/src/protocol/recipe.dart' as _i4;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i4;
+import 'package:magic_recipe_client/src/protocol/recipe.dart' as _i5;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i5;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i6;
+    as _i6;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i7;
 export 'greetings/greeting.dart';
@@ -69,15 +69,19 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i3.Recipe?>()) {
       return (data != null ? _i3.Recipe.fromJson(data) : null) as T;
     }
-    if (t == List<_i4.Recipe>) {
-      return (data as List).map((e) => deserialize<_i4.Recipe>(e)).toList()
+    if (t == List<_i4.UserInfo>) {
+      return (data as List).map((e) => deserialize<_i4.UserInfo>(e)).toList()
+          as T;
+    }
+    if (t == List<_i5.Recipe>) {
+      return (data as List).map((e) => deserialize<_i5.Recipe>(e)).toList()
           as T;
     }
     try {
-      return _i5.Protocol().deserialize<T>(data, t);
+      return _i6.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
-      return _i6.Protocol().deserialize<T>(data, t);
+      return _i4.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
       return _i7.Protocol().deserialize<T>(data, t);
@@ -111,11 +115,11 @@ class Protocol extends _i1.SerializationManager {
       case _i3.Recipe():
         return 'Recipe';
     }
-    className = _i5.Protocol().getClassNameForObject(data);
+    className = _i6.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i6.Protocol().getClassNameForObject(data);
+    className = _i4.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth.$className';
     }
@@ -140,11 +144,11 @@ class Protocol extends _i1.SerializationManager {
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i5.Protocol().deserializeByClassName(data);
+      return _i6.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth.')) {
       data['className'] = dataClassName.substring(15);
-      return _i6.Protocol().deserializeByClassName(data);
+      return _i4.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
@@ -163,10 +167,10 @@ class Protocol extends _i1.SerializationManager {
       return null;
     }
     try {
-      return _i5.Protocol().mapRecordToJson(record);
+      return _i6.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
-      return _i6.Protocol().mapRecordToJson(record);
+      return _i4.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
       return _i7.Protocol().mapRecordToJson(record);

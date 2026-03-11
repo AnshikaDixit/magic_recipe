@@ -16,10 +16,10 @@ import 'package:serverpod_client/serverpod_client.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i4;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i5;
 import 'package:magic_recipe_client/src/protocol/greetings/greeting.dart'
-    as _i5;
-import 'package:magic_recipe_client/src/protocol/recipe.dart' as _i6;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i7;
+    as _i6;
+import 'package:magic_recipe_client/src/protocol/recipe.dart' as _i7;
 import 'protocol.dart' as _i8;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
@@ -205,6 +205,33 @@ class EndpointEmailIdp extends _i1.EndpointEmailIdpBase {
   );
 }
 
+/// {@category Endpoint}
+class EndpointAdmin extends _i2.EndpointRef {
+  EndpointAdmin(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'admin';
+
+  _i3.Future<List<_i5.UserInfo>> listUsers() =>
+      caller.callServerEndpoint<List<_i5.UserInfo>>(
+        'admin',
+        'listUsers',
+        {},
+      );
+
+  _i3.Future<void> blockUser(int userId) => caller.callServerEndpoint<void>(
+    'admin',
+    'blockUser',
+    {'userId': userId},
+  );
+
+  _i3.Future<void> unblockUser(int userId) => caller.callServerEndpoint<void>(
+    'admin',
+    'unblockUser',
+    {'userId': userId},
+  );
+}
+
 /// By extending [RefreshJwtTokensEndpoint], the JWT token refresh endpoint
 /// is made available on the server and enables automatic token refresh on the client.
 /// {@category Endpoint}
@@ -253,8 +280,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i5.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i5.Greeting>(
+  _i3.Future<_i6.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i6.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -268,16 +295,16 @@ class EndpointRecipes extends _i2.EndpointRef {
   @override
   String get name => 'recipes';
 
-  _i3.Future<_i6.Recipe> generateRecipe(String ingredients) =>
-      caller.callServerEndpoint<_i6.Recipe>(
+  _i3.Future<_i7.Recipe> generateRecipe(String ingredients) =>
+      caller.callServerEndpoint<_i7.Recipe>(
         'recipes',
         'generateRecipe',
         {'ingredients': ingredients},
       );
 
   /// Returns a list of all recipes.
-  _i3.Future<List<_i6.Recipe>> getRecipes() =>
-      caller.callServerEndpoint<List<_i6.Recipe>>(
+  _i3.Future<List<_i7.Recipe>> getRecipes() =>
+      caller.callServerEndpoint<List<_i7.Recipe>>(
         'recipes',
         'getRecipes',
         {},
@@ -294,13 +321,13 @@ class EndpointRecipes extends _i2.EndpointRef {
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
-    auth = _i7.Caller(client);
+    auth = _i5.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
-  late final _i7.Caller auth;
+  late final _i5.Caller auth;
 
   late final _i4.Caller serverpod_auth_core;
 }
@@ -335,6 +362,7 @@ class Client extends _i2.ServerpodClientShared {
              disconnectStreamsOnLostInternetConnection,
        ) {
     emailIdp = EndpointEmailIdp(this);
+    admin = EndpointAdmin(this);
     jwtRefresh = EndpointJwtRefresh(this);
     greeting = EndpointGreeting(this);
     recipes = EndpointRecipes(this);
@@ -342,6 +370,8 @@ class Client extends _i2.ServerpodClientShared {
   }
 
   late final EndpointEmailIdp emailIdp;
+
+  late final EndpointAdmin admin;
 
   late final EndpointJwtRefresh jwtRefresh;
 
@@ -354,6 +384,7 @@ class Client extends _i2.ServerpodClientShared {
   @override
   Map<String, _i2.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
+    'admin': admin,
     'jwtRefresh': jwtRefresh,
     'greeting': greeting,
     'recipes': recipes,

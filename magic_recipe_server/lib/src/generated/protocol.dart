@@ -144,6 +144,10 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i7.Recipe?>()) {
       return (data != null ? _i7.Recipe.fromJson(data) : null) as T;
     }
+    if (t == List<_i4.UserInfo>) {
+      return (data as List).map((e) => deserialize<_i4.UserInfo>(e)).toList()
+          as T;
+    }
     if (t == List<_i8.Recipe>) {
       return (data as List).map((e) => deserialize<_i8.Recipe>(e)).toList()
           as T;
